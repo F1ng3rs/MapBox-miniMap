@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>鹰眼控件</title>
+    <meta charset="utf-8" />
+    <style type="text/css">
+        html, body {
+            margin: 0px;
+            height: 100%;
+            width: 100%;
+        }
+        #map {
+            width: 100%;
+            height: 100%;
+        }
+    </style>
+    <link href="../modules/mapboxgl/js/0.50.0/mapbox-gl.css" rel="stylesheet" />
+    <script src="../modules/mapboxgl/js/0.50.0/mapbox-gl.js"></script>
+    <script src="../js/miniMapControl.js"></script>
+    <!-- <script src="../modules/GeoGlobe/GeoGlobeJS.debug.js"></script> -->
+</head>
+<body>
+    <div id="map"></div>
+    <script>
+        mapboxgl.accessToken = 'pk.eyJ1IjoiZGRvbmciLCJhIjoiY2phNTk5OHR4M2xhMzJxbnJkdGN3ZTV0eCJ9.R5St4SUyuLiE6l-0dL4MOg';
+        var map = new mapboxgl.Map({
+            container: 'map', // container id
+            style: 
+            { // stylesheet location
+                "version": 8,
+                "sources": {},
+                "layers": []
+            }, 
+            center: [112.939,31.377], // starting position [lng, lat]
+            zoom: 4 // starting zoom
+        });
+        map.on("load",function(){
+            // var arcgis_wmts = GeoGlobe.appendToProxy('http://map.geoq.cn/ArcGIS/rest/services/ChinaOnlineCommunity/MapServer/WMTS?SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0&LAYER=ChinaOnlineCommunity&STYLE=default&TILEMATRIXSET=default028mm&TILEMATRIX={z}&TILEROW={y}&TILECOL={x}&FORMAT=image/png')
+            var arcgis_layer = {
+                "id": "arcgis_wmts",
+                "type": "raster",
+                "source": {
+                    "type": "raster",
+                    "tiles": ['http://map.geoq.cn/ArcGIS/rest/services/ChinaOnlineCommunity/MapServer/WMTS?SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0&LAYER=ChinaOnlineCommunity&STYLE=default&TILEMATRIXSET=default028mm&TILEMATRIX={z}&TILEROW={y}&TILECOL={x}&FORMAT=image/png'],
+                    "zoomOffset": 0,//wmts Capabilities信息中TileMatrix第一个对应的实际多少级
+                    "tileSize": 256
+                }
+            };
+            map.addLayer(arcgis_layer);
+        })
+        map.on("load", function () {
+            // * 构建鹰眼控件
+            var miniMap = new miniMapControl({
+                layer:'http://map.geoq.cn/ArcGIS/rest/services/ChinaOnlineCommunity/MapServer/WMTS?SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0&LAYER=ChinaOnlineCommunity&STYLE=default&TILEMATRIXSET=default028mm&TILEMATRIX={z}&TILEROW={y}&TILECOL={x}&FORMAT=image/png', //(必选)给定控件的底图
+                width:  '300px',    //（必选）给定控件的宽
+                height: '200px',    //（必选）给定控件的高
+                position:"bottom-right",    //（必选）控件位置
+                bounds: 'parent',   //（必选）给定控件的显示边界，默认parent为map的范围边界，或提供bounds的对象值{_ne:{lng:111,lat:30},_sw:{{lng:111,lat:30}}}
+                zoomLevels: 4,      //（必选）鹰眼地图与当前地图的zoom差
+                lineColor: '#f17c67',   //鹰眼控件边界范围的线颜色
+                lineWidth : 2,  //鹰眼控件边界范围的线宽
+                lineOpacity : 1,    //鹰眼控件边界范围的线透明度
+                fillColor :"#eb3f2f",   //鹰眼控件边界范围的面颜色
+                fillOpacity : 0.5   //鹰眼控件边界范围的面透明度
+            })
+            // * 加载鹰眼控件
+            miniMap.addTo(map)
+            // * 移除鹰眼控件
+            map.on('click',function(){
+                miniMap.remove(),1000
+            })
+            
+        });
+            
+    </script>
+</body>
+</html>
